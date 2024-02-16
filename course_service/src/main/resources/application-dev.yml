@@ -1,0 +1,30 @@
+server:
+  port: 9005
+  servlet:
+    context-path: /api/v1
+spring:
+  application:
+    name: Course Service
+  data:
+    mongodb:
+      auto-index-creation: true
+      uri: mongodb://localhost:27017/courses_database
+
+  task:
+    scheduling:
+      pool:
+        size: 5
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+
+logging:
+  level:
+    com.youdomjames.course_service: DEBUG
+    web: DEBUG
+
+application:
+  title: Course Service
+  version: v1.0.0
