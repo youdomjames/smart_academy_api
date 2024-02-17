@@ -1,0 +1,21 @@
+server:
+  port: 0
+  servlet:
+    context-path: /api/v1
+spring:
+  application:
+    name: Course Service
+  data:
+    mongodb:
+      auto-index-creation: true
+      uri: ${MONGODB_URL}
+
+logging:
+  level:
+    com.youdomjames.course_service: DEBUG
+    web: DEBUG
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

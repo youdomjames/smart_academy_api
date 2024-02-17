@@ -1,0 +1,32 @@
+version: "3.8"
+services:
+  course_service:
+    depends_on:
+      - mongodb
+    container_name: "course_service"
+    image: course_service:1.0.0
+
+    ports:
+      - "9005:9005"
+    networks:
+      - network
+    env_file:
+      - env/course_service.env
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - db_data:/data/db
+    networks:
+      - network
+    env_file:
+      - env/mongodb.env
+
+networks:
+  network:
+    driver: bridge
+    name: smart_academy_api_network
+
+volumes:
+  db_data:

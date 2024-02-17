@@ -1,0 +1,8 @@
+spring:
+  profiles:
+    active: dev
+
+
+application:
+  title: Course Service
+  version: v1.0.0
