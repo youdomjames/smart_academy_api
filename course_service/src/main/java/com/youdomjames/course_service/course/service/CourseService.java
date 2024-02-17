@@ -21,7 +21,6 @@ import static java.time.LocalDateTime.now;
 public record CourseService(CourseRepository courseRepository, MapstructMapper mapstructMapper) {
     public CourseDTO addCourse(CourseForm courseForm) {
         Course course = toCourse(courseForm);
-        System.out.println(course);
         course.setCode(generateCourseCode(course));
         course.setCreatedAt(now());
         course.setModifiedAt(now());

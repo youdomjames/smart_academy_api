@@ -2,10 +2,6 @@ spring:
   profiles:
     active: dev
 
-  task:
-    scheduling:
-      pool:
-        size: 5
 
 application:
   title: Course Service

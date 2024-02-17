@@ -8,7 +8,7 @@ spring:
   data:
     mongodb:
       auto-index-creation: true
-      uri: mongodb://localhost:27017/courses_database
+      uri: ${MONGODB_URL}
 
   task:
     scheduling:
