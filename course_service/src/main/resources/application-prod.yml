@@ -12,8 +12,9 @@ spring:
 
 logging:
   level:
-    com.youdomjames.course_service: DEBUG
+    com.youdomjames.course_service: INFO
     web: DEBUG
+
 management:
   endpoints:
     web:

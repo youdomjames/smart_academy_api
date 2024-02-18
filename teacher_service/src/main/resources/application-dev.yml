@@ -1,0 +1,22 @@
+server:
+  port: 9006
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/teachers
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+
+  #Hibernate
+  jpa:
+    properties:
+      hibernate:
+        format_sql: false
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+
+logging:
+  level:
+    com.youdomjames.teacher_service: DEBUG
+    web: DEBUG
