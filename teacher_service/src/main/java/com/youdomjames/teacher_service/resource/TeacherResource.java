@@ -9,6 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 import static java.time.LocalTime.now;
 import static java.util.Map.of;
 import static org.springframework.http.HttpStatus.CREATED;
@@ -56,9 +58,10 @@ public record TeacherResource(TeacherService teacherService) {
     @GetMapping
     public ResponseEntity<HttpResponse> search(@RequestParam String searchText,
                                                @RequestParam String searchType,
+                                               @RequestParam(required = false) String operation,
                                                @RequestParam int pageNumber,
                                                @RequestParam int pageSize) {
-        Page<TeacherDTO> teachers = teacherService.search(searchText, searchType, pageNumber, pageSize);
+        Page<TeacherDTO> teachers = teacherService.search(searchText, searchType, operation, pageNumber, pageSize);
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .timeStamp(now().toString())
@@ -91,6 +94,20 @@ public record TeacherResource(TeacherService teacherService) {
                 HttpResponse.builder()
                         .timeStamp(now().toString())
                         .message("Teacher Deleted")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build()
+        );
+    }
+
+    @GetMapping("/{id}/courses")
+    public ResponseEntity<HttpResponse> getTeacherCourses(@PathVariable String id) {
+        List<String> courses = teacherService.getTeacherCourses(id);
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .timeStamp(now().toString())
+                        .message("Teacher's courses fetched")
+                        .data(of("courses", courses))
                         .status(OK)
                         .statusCode(OK.value())
                         .build()

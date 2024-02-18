@@ -8,10 +8,7 @@ import com.youdomjames.teacher_service.enumeration.Default;
 import com.youdomjames.teacher_service.enumeration.Status;
 import com.youdomjames.teacher_service.forms.AddressForm;
 import com.youdomjames.teacher_service.forms.TeacherForm;
-import org.mapstruct.BeanMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.*;
 import org.springframework.beans.BeanUtils;
 
 /**
@@ -23,8 +20,8 @@ import org.springframework.beans.BeanUtils;
  * Licensed under the Apache License, Version 2.0 (the "License");
  */
 @Mapper(componentModel = "spring")
-public interface MapStructMapper {
-    default Teacher toTeacher(TeacherForm teacherForm) {
+public abstract class MapstructMapper {
+    public Teacher toTeacher(TeacherForm teacherForm) {
         Teacher teacher = Teacher.builder().build();
         BeanUtils.copyProperties(teacherForm, teacher);
         if (teacherForm.getStatus() == null) {
@@ -33,20 +30,26 @@ public interface MapStructMapper {
         if (teacherForm.getProfilePictureLink() == null) {
             teacher.setProfilePictureLink(Default.PICTURE_URL.getValue());
         }
-        teacher.setAddress(addressFormtoAddress(teacherForm.getAddress()));
+        teacher.setAddress(toAddress(teacherForm.getAddress()));
         return teacher;
     }
 
-    Teacher teacherDTOtoTeacher(TeacherDTO teacherDTO);
-
+    @Mapping(target = "modifiedAt", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "courseIds", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    Teacher updateTeacher(@MappingTarget Teacher teacher, TeacherForm teacherForm);
+    public abstract Teacher updateTeacher(TeacherForm teacherForm, @MappingTarget Teacher teacher);
 
-    TeacherDTO teachertoTeacherDTO(Teacher teacher);
+    public abstract TeacherDTO toTeacherDTO(Teacher teacher);
 
-    Address addressFormtoAddress(AddressForm addressForm);
+    @Mapping(target = "teacher", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    public abstract Address toAddress(AddressForm addressForm);
+    @Mapping(target = "teacher", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    public abstract void toAddress(@MappingTarget Address address, AddressForm addressForm);
 
-    Address addressDTOtoAddress(AddressDTO addressDTO);
-
-    AddressDTO addresstoAddressDTO(Address address);
+    public abstract AddressDTO toAddressDTO(Address address);
 }

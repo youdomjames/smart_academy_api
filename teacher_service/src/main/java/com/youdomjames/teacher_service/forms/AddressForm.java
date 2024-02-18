@@ -1,5 +1,6 @@
 package com.youdomjames.teacher_service.forms;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,8 +12,7 @@ import lombok.Setter;
  * Copyright 2024 James Youdom
  * Licensed under the Apache License, Version 2.0 (the "License");
  */
-@Getter
-@Setter
+@Data
 public class AddressForm {
     private String street;
     private String city;

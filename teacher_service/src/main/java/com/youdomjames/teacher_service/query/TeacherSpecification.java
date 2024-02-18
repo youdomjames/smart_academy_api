@@ -9,6 +9,8 @@ import jakarta.persistence.criteria.Root;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.time.LocalDate;
+
 /**
  * @author youdomjames
  * @project smart_academy_api
@@ -39,15 +41,33 @@ public class TeacherSpecification implements Specification<Teacher> {
     }
 
     private Predicate getAddressCriteriaBuilder(Root<Teacher> root, CriteriaBuilder criteriaBuilder) {
-        return null;
+        return criteriaBuilder.like(
+                root.get("address").get(searchCriteria.getKey()), "%" + searchCriteria.getValue() + "%");
     }
 
     private Predicate getEnumCriteriaBuilder(Root<Teacher> root, CriteriaBuilder criteriaBuilder) {
-        return null;
+        return criteriaBuilder.equal(
+                root.get(searchCriteria.getKey()), searchCriteria.getValue());
     }
 
     private Predicate getDateCriteriaBuilder(Root<Teacher> root, CriteriaBuilder criteriaBuilder) {
-        return null;
+        try {
+            return switch (searchCriteria.getOperation()){
+                case "<" -> criteriaBuilder.lessThan(
+                        root.get(searchCriteria.getKey()), (LocalDate) searchCriteria.getValue()
+                );
+                case ">" -> criteriaBuilder.greaterThan(
+                        root.get(searchCriteria.getKey()), (LocalDate) searchCriteria.getValue()
+                );
+                case ":" -> criteriaBuilder.equal(
+                        root.get(searchCriteria.getKey()), searchCriteria.getValue()
+                );
+                default -> throw new ApiException("Operation not supported for this filter");
+            };
+        } catch (IllegalArgumentException | IllegalStateException | NullPointerException e){
+            log.error(e.getLocalizedMessage());
+            throw new ApiException("An error occurred");
+        }
     }
 
     private Predicate getNumericCriteriaBuilder(Root<Teacher> root, CriteriaBuilder criteriaBuilder) {
@@ -64,7 +84,7 @@ public class TeacherSpecification implements Specification<Teacher> {
                 );
                 default -> throw new ApiException("Operation not supported for this filter");
             };
-        } catch (IllegalArgumentException | IllegalStateException e){
+        } catch (IllegalArgumentException | IllegalStateException | NullPointerException e){
             log.error(e.getLocalizedMessage());
             throw new ApiException("An error occurred");
         }

@@ -39,6 +39,7 @@ public class Teacher {
     private String phoneNumber;
     @Enumerated(value = EnumType.STRING)
     private Gender gender;
+    @Column(columnDefinition = "TEXT")
     private String aboutMe;
     private String highestDegree;
     private BigDecimal salary;
