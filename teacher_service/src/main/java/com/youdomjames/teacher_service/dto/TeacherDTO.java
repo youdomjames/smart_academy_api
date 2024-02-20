@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -29,5 +29,7 @@ public class TeacherDTO {
     private BigDecimal salary;
     private String profilePictureLink;
     private AddressDTO address;
-    private List<String> courseIds;
+    private Set<String> courseIds;
+    private Set<PaymentDTO> payments;
+
 }

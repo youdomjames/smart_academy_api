@@ -1,7 +1,5 @@
 package com.youdomjames.teacher_service.config;
 
-import com.youdomjames.teacher_service.service.kafka.KafkaService;
-import com.youdomjames.teacher_service.service.kafka.KafkaServiceImpl;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,8 +47,8 @@ public class KafkaConfig {
         return new KafkaTemplate<>(producerFactory());
     }
 
-    @Bean
-    public KafkaService kafkaService() {
-        return new KafkaServiceImpl(kafkaTemplate());
-    }
+//    @Bean
+//    public KafkaService kafkaService() {
+//        return new KafkaServiceImpl(kafkaTemplate());
+//    }
 }

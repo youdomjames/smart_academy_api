@@ -1,23 +1,29 @@
 package com.youdomjames.teacher_service.service;
 
+import com.youdomjames.teacher_service.domain.Payment;
 import com.youdomjames.teacher_service.domain.Teacher;
 import com.youdomjames.teacher_service.dto.TeacherDTO;
 import com.youdomjames.teacher_service.dto.mapper.MapstructMapper;
 import com.youdomjames.teacher_service.enumeration.Topic;
 import com.youdomjames.teacher_service.exception.ApiException;
+import com.youdomjames.teacher_service.exception.KafkaRecordHandlingException;
 import com.youdomjames.teacher_service.forms.AssignmentResultsForm;
 import com.youdomjames.teacher_service.forms.TeacherForm;
 import com.youdomjames.teacher_service.repository.TeacherRepository;
 import com.youdomjames.teacher_service.service.kafka.KafkaService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * @author youdomjames
@@ -30,7 +36,7 @@ import java.util.Map;
 @Slf4j
 @Service
 public record TeacherService(TeacherRepository repository, MapstructMapper mapper,
-                             SearchService searchService, KafkaService kafkaService) {
+                             SearchService searchService, @Lazy KafkaService kafkaService) {
     public TeacherDTO create(TeacherForm teacherForm) {
         if (repository.findByEmail(teacherForm.getEmail()).isPresent()) {
             throw new ApiException("Teacher already present.");
@@ -63,7 +69,7 @@ public record TeacherService(TeacherRepository repository, MapstructMapper mappe
         return repository.findAll(searchService.getSpecification(searchType, searchText, operation), PageRequest.of(pageIndex, pageSize)).map(mapper::toTeacherDTO);
     }
 
-    public List<String> getTeacherCourses(String id) {
+    public Set<String> getTeacherCourses(String id) {
         return findById(id).getCourseIds();
     }
 
@@ -84,5 +90,30 @@ public record TeacherService(TeacherRepository repository, MapstructMapper mappe
 
     private String getRecordValue(Map.Entry<String, BigDecimal> entry) {
         return String.join("_", entry.getKey(), entry.getValue().toPlainString());
+    }
+
+    public void handleSalaryPayment(String record) {
+        try {
+            String[] splitRecord = record.split("_");
+            if (splitRecord.length != 3) {
+                throw new KafkaRecordHandlingException("Record handling not supported. Expected split length 3, but got " + splitRecord.length);
+            }
+            String teacherId = splitRecord[0];
+            BigDecimal amount = BigDecimal.valueOf(Long.parseLong(splitRecord[1]));
+            LocalDateTime paymentDate = LocalDateTime.parse(splitRecord[2]);
+
+            Teacher teacher = findById(teacherId);
+            teacher.getPayments().add(
+                    Payment.builder()
+                            .amount(amount)
+                            .paymentDate(paymentDate)
+                            .build()
+            );
+            repository.save(teacher);
+            log.info("Salary payment successfully handled. teacherId= {} amount= {}", teacher.getId(), amount);
+        } catch (NumberFormatException | PatternSyntaxException | DateTimeParseException e) {
+            log.error(e.getLocalizedMessage());
+            throw new KafkaRecordHandlingException("Unable to handle data");
+        }
     }
 }

@@ -1,8 +1,10 @@
 package com.youdomjames.teacher_service.dto.mapper;
 
 import com.youdomjames.teacher_service.domain.Address;
+import com.youdomjames.teacher_service.domain.Payment;
 import com.youdomjames.teacher_service.domain.Teacher;
 import com.youdomjames.teacher_service.dto.AddressDTO;
+import com.youdomjames.teacher_service.dto.PaymentDTO;
 import com.youdomjames.teacher_service.dto.TeacherDTO;
 import com.youdomjames.teacher_service.enumeration.Default;
 import com.youdomjames.teacher_service.enumeration.Status;
@@ -34,6 +36,7 @@ public abstract class MapstructMapper {
         return teacher;
     }
 
+    @Mapping(target = "payments", ignore = true)
     @Mapping(target = "modifiedAt", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
@@ -53,4 +56,6 @@ public abstract class MapstructMapper {
     public abstract void toAddress(@MappingTarget Address address, AddressForm addressForm);
 
     public abstract AddressDTO toAddressDTO(Address address);
+
+    public abstract PaymentDTO paymentDTO(Payment payment);
 }
