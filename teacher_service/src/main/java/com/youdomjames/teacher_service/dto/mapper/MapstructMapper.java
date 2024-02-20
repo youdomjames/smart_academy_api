@@ -46,6 +46,7 @@ public abstract class MapstructMapper {
     @Mapping(target = "teacher", ignore = true)
     @Mapping(target = "id", ignore = true)
     public abstract Address toAddress(AddressForm addressForm);
+
     @Mapping(target = "teacher", ignore = true)
     @Mapping(target = "id", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

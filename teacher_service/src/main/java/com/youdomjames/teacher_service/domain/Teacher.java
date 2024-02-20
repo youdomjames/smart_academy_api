@@ -1,6 +1,5 @@
 package com.youdomjames.teacher_service.domain;
 
-import com.youdomjames.teacher_service.enumeration.Default;
 import com.youdomjames.teacher_service.enumeration.Gender;
 import com.youdomjames.teacher_service.enumeration.Status;
 import jakarta.persistence.*;

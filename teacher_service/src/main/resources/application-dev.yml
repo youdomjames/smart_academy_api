@@ -7,7 +7,6 @@ spring:
     username: ${MYSQL_USERNAME}
     password: ${MYSQL_PASSWORD}
 
-  #Hibernate
   jpa:
     properties:
       hibernate:
@@ -15,6 +14,16 @@ spring:
     hibernate:
       ddl-auto: update
     open-in-view: false
+
+  kafka:
+    producer:
+      bootstrap-servers: localhost:9092
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
 
 logging:
   level:

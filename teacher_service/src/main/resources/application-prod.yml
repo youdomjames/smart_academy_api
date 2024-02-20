@@ -1,10 +1,12 @@
+server:
+  port: 0
+
 spring:
   datasource:
     url: ${MYSQL_URL}
     username: ${MYSQL_USERNAME}
     password: ${MYSQL_PASSWORD}
 
-  #Hibernate
   jpa:
     properties:
       hibernate:
@@ -14,9 +16,13 @@ spring:
       ddl-auto: update
     open-in-view: false
 
+  kafka:
+    producer:
+      bootstrap-servers: ${KAFKA_SERVER_URL}
+
 logging:
   level:
-    com.youdomjames.course_service: DEBUG
+    com.youdomjames.course_service: INFO
     web: DEBUG
 
 management:
