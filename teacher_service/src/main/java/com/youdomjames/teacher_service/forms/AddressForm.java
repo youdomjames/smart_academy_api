@@ -1,8 +1,6 @@
 package com.youdomjames.teacher_service.forms;
 
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * @author youdomjames

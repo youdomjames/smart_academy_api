@@ -2,6 +2,7 @@ package com.youdomjames.teacher_service.resource;
 
 import com.youdomjames.teacher_service.dto.HttpResponse;
 import com.youdomjames.teacher_service.dto.TeacherDTO;
+import com.youdomjames.teacher_service.forms.AssignmentResultsForm;
 import com.youdomjames.teacher_service.forms.TeacherForm;
 import com.youdomjames.teacher_service.service.TeacherService;
 import jakarta.validation.Valid;
@@ -108,6 +109,19 @@ public record TeacherResource(TeacherService teacherService) {
                         .timeStamp(now().toString())
                         .message("Teacher's courses fetched")
                         .data(of("courses", courses))
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build()
+        );
+    }
+
+    @PostMapping("{id}/courses/send/results")
+    public ResponseEntity<HttpResponse> sendResults(@PathVariable String id, @RequestBody @Valid AssignmentResultsForm resultsForm) {
+        teacherService.sendResults(id, resultsForm);
+        return ResponseEntity.status(OK).body(
+                HttpResponse.builder()
+                        .timeStamp(now().toString())
+                        .message("Results are being added/updated. A notification will be sent when completed.")
                         .status(OK)
                         .statusCode(OK.value())
                         .build()

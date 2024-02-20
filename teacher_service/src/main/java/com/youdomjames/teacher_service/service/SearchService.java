@@ -24,9 +24,9 @@ import java.time.format.DateTimeParseException;
  */
 @Slf4j
 @Component
-public class SearchService {
-    public Specification<Teacher> getSpecification(String searchType, String searchText, String operation){
-         return switch (searchType) {
+public record SearchService() {
+    public Specification<Teacher> getSpecification(String searchType, String searchText, String operation) {
+        return switch (searchType) {
             case "STRING" -> getStringSpec(searchText, searchType);
             case "NUMBER" -> getNumericSpec(searchType, searchText, operation);
             case "DATE" -> getDateSpec(searchText, searchType, operation);
@@ -37,56 +37,56 @@ public class SearchService {
     }
 
     private Specification<Teacher> addressSpec(String searchText, String searchType) {
-        TeacherSpecification streetSpec = new TeacherSpecification(new SearchCriteria(searchType,"street", searchText));
-        TeacherSpecification citySpec = new TeacherSpecification(new SearchCriteria(searchType,"city", searchText));
-        TeacherSpecification stateSpec = new TeacherSpecification(new SearchCriteria(searchType,"state", searchText));
-        TeacherSpecification postalCodeSpec = new TeacherSpecification(new SearchCriteria(searchType,"postalCode", searchText));
-        TeacherSpecification apartmentNumberSpec = new TeacherSpecification(new SearchCriteria(searchType,"apartmentNumber", searchText));
+        TeacherSpecification streetSpec = new TeacherSpecification(new SearchCriteria(searchType, "street", searchText));
+        TeacherSpecification citySpec = new TeacherSpecification(new SearchCriteria(searchType, "city", searchText));
+        TeacherSpecification stateSpec = new TeacherSpecification(new SearchCriteria(searchType, "state", searchText));
+        TeacherSpecification postalCodeSpec = new TeacherSpecification(new SearchCriteria(searchType, "postalCode", searchText));
+        TeacherSpecification apartmentNumberSpec = new TeacherSpecification(new SearchCriteria(searchType, "apartmentNumber", searchText));
         return Specification.where(streetSpec).or(citySpec).or(stateSpec)
                 .or(postalCodeSpec).or(apartmentNumberSpec);
     }
 
     private Specification<Teacher> getEnumSpec(String searchText, String searchType) {
-        try{
+        try {
             Status status = Status.valueOf(searchText);
-            return Specification.where(new TeacherSpecification( new SearchCriteria(searchType,"status", status)));
-        } catch (IllegalArgumentException e){
+            return Specification.where(new TeacherSpecification(new SearchCriteria(searchType, "status", status)));
+        } catch (IllegalArgumentException e) {
             Gender gender = Gender.valueOf(searchText);
-            return Specification.where(new TeacherSpecification(new SearchCriteria(searchType,"gender", gender)));
-        } catch (Exception e){
+            return Specification.where(new TeacherSpecification(new SearchCriteria(searchType, "gender", gender)));
+        } catch (Exception e) {
             log.error(e.getMessage());
             throw new ApiException("Wrong search type. Please select ENUM type");
         }
     }
 
     private Specification<Teacher> getDateSpec(String searchText, String searchType, String operation) {
-        try{
+        try {
             LocalDate date = LocalDate.parse(searchText);
             return Specification.where(new TeacherSpecification(new SearchCriteria(searchType, operation, "dateOfBirth", date)))
-                    .or(new TeacherSpecification(new SearchCriteria(searchType, operation,"hiredDate", date)));
-        } catch (DateTimeParseException e){
+                    .or(new TeacherSpecification(new SearchCriteria(searchType, operation, "hiredDate", date)));
+        } catch (DateTimeParseException e) {
             log.error(e.getMessage());
             throw new ApiException("Wrong search type. Please select DATE type");
         }
     }
 
     private Specification<Teacher> getNumericSpec(String searchType, String searchText, String operation) {
-        try{
+        try {
             BigDecimal salary = BigDecimal.valueOf(Long.parseLong(searchText));
             return Specification.where(new TeacherSpecification(new SearchCriteria(searchType, operation, "salary", salary)));
-        }catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             log.error(e.getMessage());
             throw new ApiException("Wrong search type. Please select NUMBER type");
         }
     }
 
     private Specification<Teacher> getStringSpec(String searchText, String searchType) {
-        TeacherSpecification firstNameSpec = new TeacherSpecification(new SearchCriteria(searchType,"firstName", searchText));
-        TeacherSpecification lastNameSpec = new TeacherSpecification(new SearchCriteria(searchType,"lastName", searchText));
-        TeacherSpecification emailSpecification = new TeacherSpecification(new SearchCriteria(searchType,"email", searchText));
-        TeacherSpecification phoneNumberSpecification = new TeacherSpecification(new SearchCriteria(searchType,"phoneNumber", searchText));
-        TeacherSpecification aboutMeSpec = new TeacherSpecification(new SearchCriteria(searchType,"aboutMe", searchText));
-        TeacherSpecification highestDegreeSpec = new TeacherSpecification(new SearchCriteria(searchType,"highestDegree", searchText));
+        TeacherSpecification firstNameSpec = new TeacherSpecification(new SearchCriteria(searchType, "firstName", searchText));
+        TeacherSpecification lastNameSpec = new TeacherSpecification(new SearchCriteria(searchType, "lastName", searchText));
+        TeacherSpecification emailSpecification = new TeacherSpecification(new SearchCriteria(searchType, "email", searchText));
+        TeacherSpecification phoneNumberSpecification = new TeacherSpecification(new SearchCriteria(searchType, "phoneNumber", searchText));
+        TeacherSpecification aboutMeSpec = new TeacherSpecification(new SearchCriteria(searchType, "aboutMe", searchText));
+        TeacherSpecification highestDegreeSpec = new TeacherSpecification(new SearchCriteria(searchType, "highestDegree", searchText));
         return Specification.where(firstNameSpec).or(lastNameSpec).or(emailSpecification)
                 .or(phoneNumberSpecification).or(highestDegreeSpec).or(aboutMeSpec);
     }

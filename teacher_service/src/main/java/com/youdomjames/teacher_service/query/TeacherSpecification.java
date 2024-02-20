@@ -6,6 +6,7 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -28,8 +29,8 @@ public class TeacherSpecification implements Specification<Teacher> {
     }
 
     @Override
-    public Predicate toPredicate(Root<Teacher> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-        return switch (searchCriteria.getType()){
+    public Predicate toPredicate(@NonNull Root<Teacher> root, @NonNull CriteriaQuery<?> query, @NonNull CriteriaBuilder criteriaBuilder) {
+        return switch (searchCriteria.getType()) {
             case "STRING" -> getStringCriteriaBuilder(root, criteriaBuilder);
             case "NUMBER" -> getNumericCriteriaBuilder(root, criteriaBuilder);
             case "DATE" -> getDateCriteriaBuilder(root, criteriaBuilder);
@@ -52,7 +53,7 @@ public class TeacherSpecification implements Specification<Teacher> {
 
     private Predicate getDateCriteriaBuilder(Root<Teacher> root, CriteriaBuilder criteriaBuilder) {
         try {
-            return switch (searchCriteria.getOperation()){
+            return switch (searchCriteria.getOperation()) {
                 case "<" -> criteriaBuilder.lessThan(
                         root.get(searchCriteria.getKey()), (LocalDate) searchCriteria.getValue()
                 );
@@ -64,7 +65,7 @@ public class TeacherSpecification implements Specification<Teacher> {
                 );
                 default -> throw new ApiException("Operation not supported for this filter");
             };
-        } catch (IllegalArgumentException | IllegalStateException | NullPointerException e){
+        } catch (IllegalArgumentException | IllegalStateException | NullPointerException e) {
             log.error(e.getLocalizedMessage());
             throw new ApiException("An error occurred");
         }
@@ -72,7 +73,7 @@ public class TeacherSpecification implements Specification<Teacher> {
 
     private Predicate getNumericCriteriaBuilder(Root<Teacher> root, CriteriaBuilder criteriaBuilder) {
         try {
-            return switch (searchCriteria.getOperation()){
+            return switch (searchCriteria.getOperation()) {
                 case "<" -> criteriaBuilder.lt(
                         root.get(searchCriteria.getKey()), (Number) searchCriteria.getValue()
                 );
@@ -84,7 +85,7 @@ public class TeacherSpecification implements Specification<Teacher> {
                 );
                 default -> throw new ApiException("Operation not supported for this filter");
             };
-        } catch (IllegalArgumentException | IllegalStateException | NullPointerException e){
+        } catch (IllegalArgumentException | IllegalStateException | NullPointerException e) {
             log.error(e.getLocalizedMessage());
             throw new ApiException("An error occurred");
         }
