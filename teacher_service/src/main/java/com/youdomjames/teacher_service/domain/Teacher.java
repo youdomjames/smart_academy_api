@@ -14,8 +14,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Entity
@@ -50,7 +50,11 @@ public class Teacher {
     @ElementCollection(targetClass = String.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "courseIds", joinColumns = @JoinColumn(name = "teacher_id"))
     @Column(name = "courseId", nullable = false)
-    private List<String> courseIds = new ArrayList<>();
+    private Set<String> courseIds = new HashSet<>();
+    @Builder.Default
+    @JoinColumn(name = "teacher_id", nullable = false)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private Set<Payment> payments = new HashSet<>();
     @CreatedDate
     private LocalDateTime createdAt;
     @LastModifiedDate

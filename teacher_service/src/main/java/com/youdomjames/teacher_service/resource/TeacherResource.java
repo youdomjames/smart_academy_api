@@ -10,7 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Set;
 
 import static java.time.LocalTime.now;
 import static java.util.Map.of;
@@ -103,7 +103,7 @@ public record TeacherResource(TeacherService teacherService) {
 
     @GetMapping("/{id}/courses")
     public ResponseEntity<HttpResponse> getTeacherCourses(@PathVariable String id) {
-        List<String> courses = teacherService.getTeacherCourses(id);
+        Set<String> courses = teacherService.getTeacherCourses(id);
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .timeStamp(now().toString())
