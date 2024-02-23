@@ -1,26 +1,21 @@
-package com.youdomjames.teacher_service.exception.handler;
+package com.youdomjames.student_service.exception.handler;
 
-import com.youdomjames.teacher_service.dto.HttpResponse;
-import com.youdomjames.teacher_service.exception.ApiException;
+import com.youdomjames.student_service.dto.HttpResponse;
+import com.youdomjames.student_service.exception.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import static java.time.LocalDateTime.now;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CONFLICT;
 
-/**
- * @author youdomjames
- * @project smart_academy_api
- * @createdOn 2024-02-17
- * <p>
- * Copyright 2024 James Youdom
- * Licensed under the Apache License, Version 2.0 (the "License");
- */
 @Slf4j
-public class CustomExceptionHandler {
+@RestControllerAdvice
+public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({ApiException.class})
     public ResponseEntity<Object> handleApiException(
             Exception ex) {
