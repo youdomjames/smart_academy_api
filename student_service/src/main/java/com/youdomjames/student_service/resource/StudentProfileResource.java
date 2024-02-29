@@ -9,6 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Set;
+
 import static java.time.LocalDateTime.now;
 import static java.util.Map.of;
 import static org.springframework.http.HttpStatus.CREATED;
@@ -63,6 +65,20 @@ public record StudentProfileResource(StudentProfileService service) {
                                                       @RequestParam(required = false) String operation,
                                                       @RequestParam int pageSize) {
         Page<ProfileDTO> studentProfiles = service.searchStudentProfiles(searchText, searchType, operation, pageNumber, pageSize);
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .timeStamp(now().toString())
+                        .data(of("studentProfiles", studentProfiles))
+                        .message("Profiles fetched")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build()
+        );
+    }
+
+    @GetMapping("/by-list-of-ids")
+    public ResponseEntity<HttpResponse> getStudentProfilesByIds(@RequestParam Set<String> ids) {
+        Set<ProfileDTO> studentProfiles = service.getStudentProfilesByIds(ids);
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .timeStamp(now().toString())

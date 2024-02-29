@@ -39,10 +39,7 @@ public class Student {
     @CollectionTable(name = "courses", joinColumns = @JoinColumn(name = "student_id"))
     @Column(name = "courseId", nullable = false)
     private Set<String> courseIds = new HashSet<>();
-    @Builder.Default
-    @JoinColumn(name = "student_id", nullable = false)
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private Set<Payment> payments = new HashSet<>();
+    private String pendingPaymentIntentSecret;
     @CreatedDate
     private LocalDateTime createdAt;
     @LastModifiedDate
