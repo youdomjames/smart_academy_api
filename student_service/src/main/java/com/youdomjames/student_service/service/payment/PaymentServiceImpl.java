@@ -4,17 +4,16 @@ import com.youdomjames.student_service.domain.Student;
 import com.youdomjames.student_service.dto.Course;
 import com.youdomjames.student_service.dto.HttpResponse;
 import com.youdomjames.student_service.exception.ApiException;
-import com.youdomjames.student_service.form.ItemForm;
-import com.youdomjames.student_service.service.StudentProfileService;
+import com.youdomjames.student_service.service.StudentService;
 import com.youdomjames.student_service.service.course.CourseService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -31,21 +30,23 @@ import static org.springframework.http.HttpStatus.CREATED;
  * Licensed under the Apache License, Version 2.0 (the "License");
  */
 @Slf4j
-public record PaymentServiceImpl(WebClient webClient, StudentProfileService profileService, CourseService courseService) implements PaymentService{
-    private static final String PATH = "/payments/create";
+@Service
+public record PaymentServiceImpl(WebClient webClient, StudentService studentService,
+                                 CourseService courseService) implements PaymentService {
     public static final String PORT = "9008";
     public static final String HOST = "localhost";
+    private static final String PATH = "/payments/create";
 
     @Override
     public HttpResponse checkOut(String profileId, Set<String> courseIds) throws ApiException {
-        if (!isSameProfileConnected(profileId)){
+        if (!isSameProfileConnected(profileId)) {
             throw new ApiException("Unable to Checkout");
         }
-        if (!isStudentRelatedToAllCoursesProvided(profileId, courseIds)){
+        if (!isStudentRelatedToAllCoursesProvided(profileId, courseIds)) {
             throw new ApiException("Unable to Checkout");
         }
         Student student = getStudent(profileId);
-        if (Objects.nonNull(student.getPendingPaymentIntentSecret())){
+        if (Objects.nonNull(student.getPendingPaymentIntentSecret())) {
             return HttpResponse.builder()
                     .timeStamp(now().toString())
                     .data(of("paymentIntentSecret", student.getPendingPaymentIntentSecret()))
@@ -65,26 +66,26 @@ public record PaymentServiceImpl(WebClient webClient, StudentProfileService prof
                 .retrieve()
                 .bodyToMono(HttpResponse.class).block();
         assert response != null;
-        if (response.getStatus().isError()){
+        if (response.getStatus().isError()) {
             log.error("Payment service returned error code {} with message {}", response.getStatusCode(), response.getMessage());
             log.debug(response.getDeveloperMessage());
             return response;
         }
         log.info("Stripe PaymentIntent created. Data = {}", response.getData());
-        if (!response.getData().containsKey("paymentIntentSecret")){
+        if (!response.getData().containsKey("paymentIntentSecret")) {
             log.error("PaymentIntent secret not present!");
             throw new ApiException("Unable to checkout");
         }
         String paymentIntentSecret = (String) response.getData().get("paymentIntentSecret");
         student.setPendingPaymentIntentSecret(paymentIntentSecret);
-        profileService.updateStudent(student);
+        studentService.updateStudent(student);
         return response;
     }
 
     @Override
     public HttpResponse handleSuccessfulPayment(String profileId, String paymentIntentSecret) throws ApiException {
         Student student = getStudent(profileId);
-        if (!paymentIntentSecret.equals(student.getPendingPaymentIntentSecret())){
+        if (!paymentIntentSecret.equals(student.getPendingPaymentIntentSecret())) {
             log.error("Illegal request with paymentIntentSecret= {}", paymentIntentSecret);
             throw new ApiException("Unable to handle successful payment");
         }
@@ -99,7 +100,7 @@ public record PaymentServiceImpl(WebClient webClient, StudentProfileService prof
 
     private boolean isStudentRelatedToAllCoursesProvided(String profileId, Set<String> courseIds) {
         Student student = getStudent(profileId);
-        if (!student.getCourseIds().containsAll(courseIds) || !courseIds.containsAll(student.getCourseIds())){
+        if (!student.getCourseIds().containsAll(courseIds) || !courseIds.containsAll(student.getCourseIds())) {
             log.error("Illegal Checkout request!");
             log.debug("There is at least one course not related to this student. Profile Id= {} courseIdsToPay= {}", profileId, courseIds);
             return false;
@@ -108,7 +109,7 @@ public record PaymentServiceImpl(WebClient webClient, StudentProfileService prof
     }
 
     private Student getStudent(String profileId) {
-        return profileService.getStudentByProfileId(profileId);
+        return studentService.getStudentByProfileId(profileId);
     }
 
     private BigDecimal calculateTotalAmount(Set<String> items) {
@@ -116,13 +117,13 @@ public record PaymentServiceImpl(WebClient webClient, StudentProfileService prof
         Set<Course> courses;
         try {
             courses = (Set<Course>) response.getData().get("studentCourses");
-            if (courses.stream().map(Course::getId).count() != items.size()){
+            if (courses.stream().map(Course::getId).count() != items.size()) {
                 log.error("Unable to fetch all courses");
                 throw new ApiException("Unable to fetch all course prices");
             }
             return courses.stream().map(Course::getPrice).reduce(BigDecimal::add)
                     .orElseThrow(() -> new ApiException("Unable to calculate total amount"));
-        } catch (ClassCastException | NullPointerException e){
+        } catch (ClassCastException | NullPointerException e) {
             log.error("Unable to cast studentCourses from response data");
             throw new ApiException("Unable to fetch course prices");
         }

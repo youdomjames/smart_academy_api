@@ -19,5 +19,5 @@ public class StudentDTO {
     private String id;
     private ProfileDTO profileDTO;
     private Set<String> courseIds;
-    private Set<Payment> payments;
+    private String pendingPaymentIntentSecret;
 }

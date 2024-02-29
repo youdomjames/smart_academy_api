@@ -3,7 +3,7 @@ package com.youdomjames.student_service.resource;
 import com.youdomjames.student_service.dto.HttpResponse;
 import com.youdomjames.student_service.dto.ProfileDTO;
 import com.youdomjames.student_service.form.ProfileForm;
-import com.youdomjames.student_service.service.StudentProfileService;
+import com.youdomjames.student_service.service.StudentService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +26,7 @@ import static org.springframework.http.HttpStatus.OK;
  */
 @RestController
 @RequestMapping("/profiles")
-public record StudentProfileResource(StudentProfileService service) {
+public record StudentProfileResource(StudentService service) {
     //TODO: Restrict access to ADMIN
     @PostMapping
     public ResponseEntity<HttpResponse> createStudent(@RequestBody @Valid ProfileForm profileForm) {

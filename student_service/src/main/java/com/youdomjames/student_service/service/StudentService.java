@@ -23,10 +23,10 @@ import java.util.Set;
  * Licensed under the Apache License, Version 2.0 (the "License");
  */
 @Service
-public record StudentProfileService(StudentProfileRepository profileRepository,
-                                    StudentRepository studentRepository,
-                                    SearchService searchService,
-                                    MapstructMapper mapper) {
+public record StudentService(StudentProfileRepository profileRepository,
+                             StudentRepository studentRepository,
+                             SearchService searchService,
+                             MapstructMapper mapper) {
     public ProfileDTO createStudent(ProfileForm form) {
         if (profileRepository.findByEmail(form.getEmail()).isPresent()) {
             throw new ApiException("Student already present.");
@@ -65,6 +65,10 @@ public record StudentProfileService(StudentProfileRepository profileRepository,
         return mapper.toProfileDTO(updatedStudentProfile);
     }
 
+    public Student save(Student student) {
+        return studentRepository.save(student);
+    }
+
     public void deleteStudentByProfileId(String id) {
         if (!profileRepository.existsById(id)) {
             throw new ApiException("Student not present. Nothing was deleted");
@@ -75,7 +79,7 @@ public record StudentProfileService(StudentProfileRepository profileRepository,
         }
     }
 
-    public void updateStudent(Student student){
+    public void updateStudent(Student student) {
         studentRepository.save(student);
     }
 }
