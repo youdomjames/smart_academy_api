@@ -75,6 +75,7 @@ services:
     environment:
       - MYSQL_USERNAME=${MYSQL_USERNAME}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_URL=${MYSQL_TEACHERS_URL}
       - KAFKA_SERVER_URL=${KAFKA_SERVER_URL}
 
   teachers_db:
@@ -85,10 +86,39 @@ services:
     networks:
       - network
     environment:
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_DATABASE=${MYSQL_TEACHERS_DATABASE}
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     volumes:
-      - mysql_db:/var/lib/mysql
+      - mysql_teachers_db:/var/lib/mysql
+
+  student_service:
+    depends_on:
+      - students_db
+      - kafka
+    image: student_service:1.0.0
+    restart: on-failure
+    ports:
+      - "9007:9007"
+    networks:
+      - network
+    environment:
+      - MYSQL_USERNAME=${MYSQL_USERNAME}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_URL=${MYSQL_STUDENTS_URL}
+      - KAFKA_SERVER_URL=${KAFKA_SERVER_URL}
+
+  students_db:
+    image: mysql:latest
+    restart: on-failure
+    ports:
+      - "3307:3306"
+    networks:
+      - network
+    environment:
+      - MYSQL_DATABASE=${MYSQL_STUDENTS_DATABASE}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - mysql_students_db:/var/lib/mysql
 
 networks:
   network:
@@ -97,4 +127,5 @@ networks:
 
 volumes:
   db_data:
-  mysql_db:
+  mysql_teachers_db:
+  mysql_students_db:
