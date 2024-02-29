@@ -46,7 +46,7 @@ To run the application on docker, follow these steps:
 
 ## Application Architecture
 
-![Backend architecture.drawio.png](Backend%20architecture.drawio.png)
+![Backend architecture.drawio.png](backend_architecture.png)
 
 ## Copyright
 
