@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Builder;
 import lombok.Data;
-import org.apache.kafka.common.protocol.types.Field;
 
 import java.math.BigDecimal;
 

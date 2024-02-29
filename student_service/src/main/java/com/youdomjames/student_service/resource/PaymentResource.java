@@ -1,17 +1,12 @@
 package com.youdomjames.student_service.resource;
 
 import com.youdomjames.student_service.dto.HttpResponse;
-import com.youdomjames.student_service.form.PaymentForm;
 import com.youdomjames.student_service.service.payment.PaymentService;
-import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Set;
 
-import static java.time.LocalDateTime.now;
-import static java.util.Map.of;
 import static org.springframework.http.HttpStatus.CREATED;
 
 /**
@@ -27,12 +22,12 @@ import static org.springframework.http.HttpStatus.CREATED;
 public record PaymentResource(PaymentService paymentService) {
     //TODO: Restrict access to connected user with same profileId only
     @PostMapping("/checkout")
-    public ResponseEntity<HttpResponse> createCheckout(@PathVariable String profileId, @RequestParam Set<String> courseIds){
+    public ResponseEntity<HttpResponse> createCheckout(@PathVariable String profileId, @RequestParam Set<String> courseIds) {
         return ResponseEntity.status(CREATED).body(paymentService.checkOut(profileId, courseIds));
     }
 
     @PostMapping("/{paymentIntentSecret}/success")
-    public ResponseEntity<HttpResponse> handleSuccessfulPayment(@PathVariable String profileId, @PathVariable String paymentIntentSecret){
+    public ResponseEntity<HttpResponse> handleSuccessfulPayment(@PathVariable String profileId, @PathVariable String paymentIntentSecret) {
         return ResponseEntity.status(CREATED).body(paymentService.handleSuccessfulPayment(profileId, paymentIntentSecret));
     }
 
