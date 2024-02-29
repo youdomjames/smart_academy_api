@@ -94,7 +94,7 @@ public record TeacherService(TeacherRepository repository, MapstructMapper mappe
 
     public void handleSalaryPayment(String record) {
         try {
-            String[] splitRecord = record.split("_");
+            String[] splitRecord = record.split(",");
             if (splitRecord.length != 3) {
                 throw new KafkaRecordHandlingException("Record handling not supported. Expected split length 3, but got " + splitRecord.length);
             }

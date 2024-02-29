@@ -1,6 +1,5 @@
 package com.youdomjames.student_service.dto;
 
-import com.youdomjames.student_service.domain.Payment;
 import lombok.Builder;
 import lombok.Data;
 
@@ -20,5 +19,5 @@ public class StudentDTO {
     private String id;
     private ProfileDTO profileDTO;
     private Set<String> courseIds;
-    private Set<Payment> payments;
+    private String pendingPaymentIntentSecret;
 }

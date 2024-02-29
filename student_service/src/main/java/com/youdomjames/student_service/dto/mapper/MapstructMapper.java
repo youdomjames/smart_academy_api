@@ -13,7 +13,10 @@ import com.youdomjames.student_service.form.ProfileForm;
 import org.mapstruct.*;
 import org.springframework.beans.BeanUtils;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author youdomjames
@@ -61,4 +64,8 @@ public abstract class MapstructMapper {
     @Mapping(target = "createdAt", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     public abstract Profile updateProfile(ProfileForm form, @MappingTarget Profile profile);
+
+    public Set<ProfileDTO> toProfileDTOs(List<Profile> profiles) {
+        return profiles.stream().map(this::toProfileDTO).collect(Collectors.toSet());
+    }
 }

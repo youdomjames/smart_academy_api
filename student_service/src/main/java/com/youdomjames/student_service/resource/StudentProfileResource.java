@@ -3,11 +3,13 @@ package com.youdomjames.student_service.resource;
 import com.youdomjames.student_service.dto.HttpResponse;
 import com.youdomjames.student_service.dto.ProfileDTO;
 import com.youdomjames.student_service.form.ProfileForm;
-import com.youdomjames.student_service.service.StudentProfileService;
+import com.youdomjames.student_service.service.StudentService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Set;
 
 import static java.time.LocalDateTime.now;
 import static java.util.Map.of;
@@ -24,7 +26,7 @@ import static org.springframework.http.HttpStatus.OK;
  */
 @RestController
 @RequestMapping("/profiles")
-public record StudentProfileResource(StudentProfileService service) {
+public record StudentProfileResource(StudentService service) {
     //TODO: Restrict access to ADMIN
     @PostMapping
     public ResponseEntity<HttpResponse> createStudent(@RequestBody @Valid ProfileForm profileForm) {
@@ -63,6 +65,20 @@ public record StudentProfileResource(StudentProfileService service) {
                                                       @RequestParam(required = false) String operation,
                                                       @RequestParam int pageSize) {
         Page<ProfileDTO> studentProfiles = service.searchStudentProfiles(searchText, searchType, operation, pageNumber, pageSize);
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .timeStamp(now().toString())
+                        .data(of("studentProfiles", studentProfiles))
+                        .message("Profiles fetched")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build()
+        );
+    }
+
+    @GetMapping("/by-list-of-ids")
+    public ResponseEntity<HttpResponse> getStudentProfilesByIds(@RequestParam Set<String> ids) {
+        Set<ProfileDTO> studentProfiles = service.getStudentProfilesByIds(ids);
         return ResponseEntity.ok().body(
                 HttpResponse.builder()
                         .timeStamp(now().toString())
