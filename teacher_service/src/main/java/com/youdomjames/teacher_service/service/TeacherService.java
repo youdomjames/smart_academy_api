@@ -24,6 +24,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
 
 /**
  * @author youdomjames
@@ -62,6 +63,10 @@ public record TeacherService(TeacherRepository repository, MapstructMapper mappe
         if (repository.existsById(id)) {
             throw new ApiException("Teacher not deleted");
         }
+    }
+
+    public Set<TeacherDTO> getAllByIds(Set<String> ids) {
+        return repository.findAllById(ids).stream().map(mapper::toTeacherDTO).collect(Collectors.toSet());
     }
 
     public Page<TeacherDTO> search(String searchText, String searchType, String operation, int pageNumber, int pageSize) {

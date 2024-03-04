@@ -57,6 +57,20 @@ public record TeacherResource(TeacherService teacherService) {
     }
 
     @GetMapping
+    public ResponseEntity<HttpResponse> getAllTeachersByListOfIds(@RequestParam Set<String> ids) {
+        Set<TeacherDTO> teachers = teacherService.getAllByIds(ids);
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .timeStamp(now().toString())
+                        .message("Teachers fetched")
+                        .data(of("teachers", teachers))
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build()
+        );
+    }
+
+    @GetMapping
     public ResponseEntity<HttpResponse> search(@RequestParam String searchText,
                                                @RequestParam String searchType,
                                                @RequestParam(required = false) String operation,
