@@ -6,12 +6,14 @@ spring:
     url: jdbc:mysql://localhost:3306/teachers
     username: ${MYSQL_USERNAME}
     password: ${MYSQL_PASSWORD}
+  application:
+    name: teacher-service
 
   jpa:
     properties:
       hibernate:
         format_sql: false
-        dialect: org.hibernate.dialect.MySQL8Dialect
+        dialect: org.hibernate.dialect.MySQLDialect
     hibernate:
       ddl-auto: update
     open-in-view: false
@@ -30,3 +32,10 @@ logging:
   level:
     com.youdomjames.teacher_service: DEBUG
     web: DEBUG
+
+eureka:
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/

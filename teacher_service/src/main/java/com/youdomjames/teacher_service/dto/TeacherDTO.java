@@ -16,6 +16,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TeacherDTO {
+    private String id;
     private String firstName;
     private String lastName;
     private LocalDate dateOfBirth;
@@ -31,5 +32,4 @@ public class TeacherDTO {
     private AddressDTO address;
     private Set<String> courseIds;
     private Set<PaymentDTO> payments;
-
 }

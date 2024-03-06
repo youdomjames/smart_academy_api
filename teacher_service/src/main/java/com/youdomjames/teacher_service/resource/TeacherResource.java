@@ -56,7 +56,7 @@ public record TeacherResource(TeacherService teacherService) {
         );
     }
 
-    @GetMapping
+    @GetMapping("/by-list-of-ids")
     public ResponseEntity<HttpResponse> getAllTeachersByListOfIds(@RequestParam Set<String> ids) {
         Set<TeacherDTO> teachers = teacherService.getAllByIds(ids);
         return ResponseEntity.ok().body(

@@ -1,5 +1,6 @@
 package com.youdomjames.course_service.course.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.youdomjames.course_service.enumeration.Session;
 import com.youdomjames.course_service.enumeration.Status;
 import lombok.AllArgsConstructor;
@@ -38,6 +39,8 @@ public class Course implements Serializable {
     private Map<String, Student> students = new HashMap<>();
     private Session session;
     private String year;
+    @JsonIgnore
     private LocalDateTime createdAt;
+    @JsonIgnore
     private LocalDateTime modifiedAt;
 }

@@ -1,5 +1,6 @@
 package com.youdomjames.course_service.assignment.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.youdomjames.course_service.enumeration.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,6 +38,8 @@ public class Assignment implements Serializable {
     private BigDecimal studentCompletionRate;
     @Builder.Default
     private Map<String, StudentAssignment> studentAssignments = new HashMap<>();
+    @JsonIgnore
     private LocalDateTime createdAt;
+    @JsonIgnore
     private LocalDateTime modifiedAt;
 }
