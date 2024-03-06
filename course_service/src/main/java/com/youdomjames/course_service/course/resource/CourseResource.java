@@ -9,7 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import static com.youdomjames.course_service.course.dto.mapper.CourseDTOMapper.toCourseDTO;
+import java.util.List;
+
 import static java.time.LocalDateTime.now;
 import static java.util.Map.of;
 import static org.springframework.http.HttpStatus.CREATED;
@@ -35,12 +36,26 @@ public record CourseResource(CourseService courseService) {
 
     @GetMapping("/{id}")
     public ResponseEntity<HttpResponse> getCourseById(@PathVariable("id") String courseId) {
-        CourseDTO courseDTO = toCourseDTO(courseService.getCourseById(courseId));
+        CourseDTO courseDTO = courseService.getCourseDTOById(courseId);
         return ResponseEntity.status(OK).body(
                 HttpResponse.builder()
                         .timeStamp(now().toString())
                         .data(of("course", courseDTO))
                         .message("Course fetched")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build()
+        );
+    }
+
+    @GetMapping("/by-list-of-ids")
+    public ResponseEntity<HttpResponse> getCoursesByIds(@RequestParam List<String> courseIds) {
+        List<CourseDTO> courseDTOs = courseService.getAllCoursesByIds(courseIds);
+        return ResponseEntity.status(OK).body(
+                HttpResponse.builder()
+                        .timeStamp(now().toString())
+                        .data(of("courses", courseDTOs))
+                        .message("Courses fetched")
                         .status(OK)
                         .statusCode(OK.value())
                         .build()

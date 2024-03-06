@@ -19,6 +19,9 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({ApiException.class})
     public ResponseEntity<Object> handleApiException(
             Exception ex) {
+        log.error(
+                "API EXCEPTION OCCURRED: " + ex.getMessage() + " " + ex.getClass().getSimpleName()
+        );
         return ResponseEntity.status(BAD_REQUEST).body(
                 HttpResponse.builder()
                         .timeStamp(now().toString())

@@ -4,10 +4,11 @@ import com.youdomjames.course_service.enumeration.Session;
 import com.youdomjames.course_service.enumeration.Status;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Data
-public class CourseDTO {
+public class CourseDTO implements Serializable {
     private String id;
     private String name;
     private String code;

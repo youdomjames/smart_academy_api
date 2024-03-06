@@ -9,6 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Set;
+
 import static java.time.LocalDateTime.now;
 import static java.util.Map.of;
 import static org.springframework.http.HttpStatus.CREATED;
@@ -57,6 +59,20 @@ public record AssignmentResource(AssignmentService assignmentService) {
                         .timeStamp(now().toString())
                         .data(of("assignments", assignments))
                         .message("Assignments fetched")
+                        .status(OK)
+                        .statusCode(OK.value())
+                        .build()
+        );
+    }
+
+    @GetMapping("/by-courseIds")
+    public ResponseEntity<HttpResponse> getStudentAssignmentsByListOfCourseIds(@RequestParam String studentId,
+                                                                               @RequestParam Set<String> courseIds) {
+        return ResponseEntity.ok().body(
+                HttpResponse.builder()
+                        .timeStamp(now().toString())
+                        .data(of("studentAssignments", assignmentService.getAssignmentsByListOfCourseIds(studentId, courseIds)))
+                        .message("Student Assignments fetched")
                         .status(OK)
                         .statusCode(OK.value())
                         .build()
