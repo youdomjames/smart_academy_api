@@ -7,17 +7,20 @@ import com.youdomjames.course_service.exception.ApiException;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Map;
+import java.util.Objects;
 
 import static java.time.LocalDateTime.now;
 
 @Slf4j
 @Service
-public record StudentAssignmentService(AssignmentService assignmentService) {
+public record StudentAssignmentService(AssignmentService assignmentService,
+                                       RedisTemplate<String, Object> redisTemplate) {
     public StudentAssignment addStudentAssignment(String id, String studentId, String fileUrl) {
         Assignment assignment = assignmentService.getAssignmentById(id);
         studentAssignmentChecks(assignment, studentId);
@@ -26,8 +29,9 @@ public record StudentAssignmentService(AssignmentService assignmentService) {
                 .completionDateTime(now())
                 .build();
         assignment.getStudentAssignments().put(studentId, studentAssignment);
-        assignmentService.save(assignment);
         assignment.setModifiedAt(now());
+        Assignment updatedAssignment = assignmentService.save(assignment);
+        updateCachedAssignment(id, updatedAssignment);
         return studentAssignment;
     }
 
@@ -40,6 +44,10 @@ public record StudentAssignmentService(AssignmentService assignmentService) {
     }
 
     public StudentAssignment getStudentAssignment(String assignmentId, String studentId) {
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(assignmentId))) {
+            log.info("Assignment {} found in cache", assignmentId);
+            return getStudentAssignment((Assignment) Objects.requireNonNull(redisTemplate.opsForValue().get(assignmentId)), studentId);
+        }
         return getStudentAssignment(assignmentService.getAssignmentById(assignmentId), studentId);
     }
 
@@ -52,7 +60,15 @@ public record StudentAssignmentService(AssignmentService assignmentService) {
             return value;
         });
         assignment.setModifiedAt(now());
-        assignmentService.save(assignment);
+        Assignment updatedAssignment = assignmentService.save(assignment);
+        updateCachedAssignment(assignmentId, updatedAssignment);
+    }
+
+    private void updateCachedAssignment(String assignmentId, Assignment updatedAssignment) {
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(assignmentId))) {
+            redisTemplate.opsForValue().set(assignmentId, updatedAssignment);
+            log.info("Assignment {} updated in cache", assignmentId);
+        }
     }
 
     //TODO: Call this method after adding all student scores for an assignment
@@ -62,7 +78,8 @@ public record StudentAssignmentService(AssignmentService assignmentService) {
         BigDecimal averageScore = sumOfScores.divide(BigDecimal.valueOf(assignment.getStudentAssignments().size()), RoundingMode.HALF_UP);
         assignment.setAverageScore(averageScore);
         assignment.setModifiedAt(now());
-        assignmentService.save(assignment);
+        Assignment updatedAssignment = assignmentService.save(assignment);
+        updateCachedAssignment(assignment.getId(), updatedAssignment);
     }
 
     public Map<String, StudentAssignment> getStudentAssignments(String id) {
@@ -77,15 +94,24 @@ public record StudentAssignmentService(AssignmentService assignmentService) {
             return value;
         });
         assignment.setModifiedAt(now());
-        return assignmentService.save(assignment).getStudentAssignments().get(studentId);
+        Assignment updatedAssignment = assignmentService.save(assignment);
+        updateCachedAssignment(id, updatedAssignment);
+        return updatedAssignment.getStudentAssignments().get(studentId);
     }
 
     public void deleteStudentAssignment(String id, String studentId) {
-        StudentAssignment deletedStudentAssignment = assignmentService.getAssignmentById(id).getStudentAssignments().remove(studentId);
+        Assignment assignment = assignmentService.getAssignmentById(id);
+        StudentAssignment deletedStudentAssignment = assignment.getStudentAssignments().remove(studentId);
         if (deletedStudentAssignment == null) {
             throw new ApiException("Student Assignment not deleted");
         }
-        log.info("Student assignment {} deleted. Assignment code = {}", deletedStudentAssignment, assignmentService.getAssignmentById(id).getCode());
+        log.info("Student assignment {} deleted. Assignment code = {}", deletedStudentAssignment, assignment.getCode());
+        assignment.setModifiedAt(now());
+        Assignment updatedAssignment = assignmentService.save(assignment);
+        updateCachedAssignment(id, updatedAssignment);
+        if (updatedAssignment.getStudentAssignments().containsKey(studentId)) {
+            throw new ApiException("An error occurred. Student assignment not deleted.");
+        }
     }
 
     private String getGrade(double score) {

@@ -1,17 +1,57 @@
 version: "3.8"
 services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      - ZOOKEEPER_CLIENT_PORT=${ZOOKEEPER_CLIENT_PORT}
+      - ZOOKEEPER_TICK_TIME=${ZOOKEEPER_TICK_TIME}
+    ports:
+      - "2181:2181"
+    networks:
+      - network
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    networks:
+      - network
+    environment:
+      - KAFKA_BROKER_ID=${KAFKA_BROKER_ID}
+      - KAFKA_ZOOKEEPER_CONNECT=${KAFKA_ZOOKEEPER_CONNECT}
+      - KAFKA_ADVERTISED_LISTENERS=${KAFKA_ADVERTISED_LISTENERS}
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=${KAFKA_LISTENER_SECURITY_PROTOCOL_MAP}
+      - KAFKA_INTER_BROKER_LISTENER_NAME=${KAFKA_INTER_BROKER_LISTENER_NAME}
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=${KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR}
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    depends_on:
+      - kafka
+    ports:
+      - "8090:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+    networks:
+      - network
+
   course_service:
     depends_on:
       - mongodb
-    container_name: "course_service"
+      - kafka
     image: course_service:1.0.0
 
     ports:
       - "9005:9005"
     networks:
       - network
-    env_file:
-      - env/course_service.env
+    environment:
+      - MONGODB_URL=${MONGODB_URL}
+
   mongodb:
     image: mongo:latest
     ports:
@@ -20,8 +60,65 @@ services:
       - db_data:/data/db
     networks:
       - network
-    env_file:
-      - env/mongodb.env
+
+
+  teacher_service:
+    depends_on:
+      - teachers_db
+      - kafka
+    image: teacher_service:1.0.0
+    restart: on-failure
+    ports:
+      - "9006:9006"
+    networks:
+      - network
+    environment:
+      - MYSQL_USERNAME=${MYSQL_USERNAME}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_URL=${MYSQL_TEACHERS_URL}
+      - KAFKA_SERVER_URL=${KAFKA_SERVER_URL}
+
+  teachers_db:
+    image: mysql:latest
+    restart: on-failure
+    ports:
+      - "3306:3306"
+    networks:
+      - network
+    environment:
+      - MYSQL_DATABASE=${MYSQL_TEACHERS_DATABASE}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - mysql_teachers_db:/var/lib/mysql
+
+  student_service:
+    depends_on:
+      - students_db
+      - kafka
+    image: student_service:1.0.0
+    restart: on-failure
+    ports:
+      - "9007:9007"
+    networks:
+      - network
+    environment:
+      - MYSQL_USERNAME=${MYSQL_USERNAME}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_URL=${MYSQL_STUDENTS_URL}
+      - KAFKA_SERVER_URL=${KAFKA_SERVER_URL}
+
+  students_db:
+    image: mysql:latest
+    restart: on-failure
+    ports:
+      - "3307:3306"
+    networks:
+      - network
+    environment:
+      - MYSQL_DATABASE=${MYSQL_STUDENTS_DATABASE}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - mysql_students_db:/var/lib/mysql
 
 networks:
   network:
@@ -30,3 +127,5 @@ networks:
 
 volumes:
   db_data:
+  mysql_teachers_db:
+  mysql_students_db:

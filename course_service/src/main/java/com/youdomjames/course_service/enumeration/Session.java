@@ -1,5 +1,7 @@
 package com.youdomjames.course_service.enumeration;
 
-public enum Session {
+import java.io.Serializable;
+
+public enum Session implements Serializable {
     FALL, WINTER, SUMMER
 }

@@ -5,7 +5,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
+import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
+@Repository
 public interface AssignmentRepository extends MongoRepository<Assignment, String> {
     long countByCourseId(String courseId);
 
@@ -14,4 +18,6 @@ public interface AssignmentRepository extends MongoRepository<Assignment, String
             "{ 'studentCompletionRate': { $regex: ?0, $options: 'i' } }, { 'startDate': { $regex: ?0, $options: 'i' } }, " +
             "{ 'deadline': { $regex: ?0, $options: 'i' } }, { 'averageScore': { $regex: ?0, $options: 'i' } } ] }")
     Page<Assignment> findAll(String filter, Pageable pageable);
+
+    Optional<Assignment> findByCourseId(String courseId);
 }

@@ -8,7 +8,9 @@ spring:
   data:
     mongodb:
       auto-index-creation: true
-      uri: ${MONGODB_URL}
+      uri: mongodb://localhost:27017/courses
+    redis:
+
 
   task:
     scheduling:
@@ -23,6 +25,7 @@ management:
 logging:
   level:
     com.youdomjames.course_service: DEBUG
+    org.springframework.data: INFO
     web: DEBUG
 
 application:
