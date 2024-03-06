@@ -76,7 +76,7 @@ public record StudentProfileResource(StudentService service) {
         );
     }
 
-    @GetMapping("/by-list-of-ids")
+    @GetMapping
     public ResponseEntity<HttpResponse> getStudentProfilesByIds(@RequestParam Set<String> ids) {
         Set<ProfileDTO> studentProfiles = service.getStudentProfilesByIds(ids);
         return ResponseEntity.ok().body(
