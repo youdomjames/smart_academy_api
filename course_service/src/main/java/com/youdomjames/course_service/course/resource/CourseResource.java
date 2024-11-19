@@ -5,8 +5,11 @@ import com.youdomjames.course_service.course.dto.CourseDTO;
 import com.youdomjames.course_service.course.service.CourseService;
 import com.youdomjames.course_service.forms.CourseForm;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,8 +22,11 @@ import static org.springframework.http.HttpStatus.OK;
 //TODO Implement authorizations
 @RestController
 @RequestMapping("/courses")
-public record CourseResource(CourseService courseService) {
+@RequiredArgsConstructor
+public class CourseResource {
+    private final CourseService courseService;
     @PostMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<HttpResponse> addNewCourse(@RequestBody @Valid CourseForm course) {
         CourseDTO courseDTO = courseService.addCourse(course);
         return ResponseEntity.status(CREATED).body(

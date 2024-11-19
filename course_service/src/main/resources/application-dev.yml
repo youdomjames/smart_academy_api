@@ -3,6 +3,23 @@ server:
   servlet:
     context-path: /api/v1
 spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: smart-academy-api
+            authorization-grant-type: authorization_code
+            scope:
+              - openid
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8000/realms/smart-academy
+            user-name-attribute: preferred_username
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8000/realms/smart-academy
+
   application:
     name: course-service
   data:
